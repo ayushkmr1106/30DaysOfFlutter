@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +28,11 @@ class _HomePageState extends State<HomePage> {
     var catalogJson = await rootBundle.loadString('assets/files/catalog.json');
     final data = jsonDecode(catalogJson);
     var productsData = data["products"];
-    print(productsData);
+    // save data to CatalogModel(class).item in catalog.dart
+    // CatalogModel.items = productsData.map<Item>((item) => Item.fromJson(item)).toList(); OR
+    await Future.delayed(const Duration(seconds: 2));
+    CatalogModel.items = productsData.map<Item>((item) => Item(id: item["id"], name: item["name"], desc: item["desc"], price: item["price"], color: item["color"], image: item["image"])).toList();
+    setState(() {});
 
     // print(catalogJson);
   }
@@ -34,7 +40,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     // When stateless class
-    final dummyList = List.generate(50, (index) => CatalogModel.items[0]);
+    // final dummyList = List.generate(50, (index) => CatalogModel.items[0]);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -43,15 +49,19 @@ class _HomePageState extends State<HomePage> {
 
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          // itemCount: CatalogModel.items.length,
-          itemCount: dummyList.length,
+        child: (CatalogModel.items != null && CatalogModel.items.isNotEmpty)
+        ? ListView.builder(
+          itemCount: CatalogModel.items.length,
+          // itemCount: dummyList.length,
           itemBuilder: (context, index) {
             return ItemWidget(
               // item: CatalogModel.items[index],
-              item : dummyList[index],
+              item : CatalogModel.items[index],
             );
           },
+        )
+        : const Center(
+          child: CircularProgressIndicator(),
         ),
       ),
       drawer: const MyDrawer(),
